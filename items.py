@@ -16,16 +16,18 @@ class _Items():
     ''' basic type for any objects such as gear, axes, ...
     
         center_pos3d : (float)*3                < represents the 3d position (x, y, z) of the center of the object
-        weight       : float                    < represents the mass of the items '''
+        weight       : float                    < represents the mass of the items 
+        orient       : (float)*2                < represents the rotation of the object by (theta, phi)'''
     
-    def __init__(self, center_pos3d:(float), weight:float):
+    def __init__(self, center_pos3d:(float), orient:(float), weight:float):
         self.center_pos3d = center_pos3d
+        self.orient = orient
         self.weight = weight
 
     class Gear():
         ''' gear child class : gear described either by (radius, number of tooth) or by key of _Items.Gear._default_gears
         
-            center_pos3d                        < super arg
+            center_pos3d, orient                < super arg
             rad      : float                    < describe the radius of the gear taken into account tooth heigth
             nb_tooth : int                      < describe the number of tooths of the gear 
             dft_gr   : str                      < describe the gear by its key for _Items.Gear._default_gears '''
@@ -34,9 +36,9 @@ class _Items():
         _default_tths = dft._gear_tths          # [int]   < list of nb_tooth of default gears
         _default_gears = dft._gear_dict         # {(int, int)} < dict of default gear given by index - keys/values given in doc
 
-        def __init__(self, center_pos3d:(float), rad=None, nb_tooth=None, dft_gr=None):
+        def __init__(self, center_pos3d:(float), rad=None, nb_tooth=None, dft_gr=None, orient:(float)):
             wgt = dft._wgtGear_fun(rad)
-            _Items.__init__(self, center_pos3d, wgt)
+            _Items.__init__(self, center_pos3d, orient, wgt)
 
             assert (rad != None and nb_tooth != None) or dft_gr != None, "Gear : gear badly defined, either (rad, nb_tooth) or dft_gr must be described"
 
@@ -55,26 +57,26 @@ class _Items():
     class Axes():
         ''' axes child class : axes described by its length
         
-            center_pos3d                        < super arg
+            center_pos3d, orient                < super arg
             length      : int                   < describes the length of the axes by its number of studs '''
         
-        def __init__(self, center_pos3d:(float), length:int):
+        def __init__(self, center_pos3d:(float), orient:(float), length:int):
             wgt = dft._wgtAxe_fun(length)
-            _Items.__init__(self, center_pos3d, wgt)
+            _Items.__init__(self, center_pos3d, orient, wgt)
 
             self.lgt = length
     
     class Join():
         ''' join child class :
 
-        center_pos3d                            < super arg
+        center_pos3d, orient                    < super arg
         length      : int                       < describes the length of the join by its number of studs 
         rough       : bool                      < describes either the join could rotate or not 
         form_lst    : ('cross' || 'round') list < describes the formes of each part of the join '''
 
-        def __init__(self, center_pos3d:(float), length:int, rough:bool, form_lst:[str]):
+        def __init__(self, center_pos3d:(float), length:int, rough:bool, form_lst:[str], orient:(float)):
             wgt = dft._wgtJoin_fun(length)
-            _Items.__init__(self, center_pos3d, wgt)
+            _Items.__init__(self, center_pos3d, orient, wgt)
             
             if length > 3 : warnings.warn("Join : unusual length described")
             assert len(form_lst) == length, "Join : wrong dimension for form_lst"
@@ -86,9 +88,9 @@ class _Items():
     class Beam(): ## gestion de la forme ??
         ''' beam child class :
         
-        center_pos3d                        < super arg
+        center_pos3d, orient                        < super arg
         length      : int                   < describes the length of the beam by its number of studs '''
 
-        def __init__(self,center_pos3d:(float), length:int):
+        def __init__(self,center_pos3d:(float), length:int, oreint):
             wgt = dft._wgtBeam_fun(length)
-            _Items.__init__(self, center_pos3d, wgt)
+            _Items.__init__(self, center_pos3d, orient, wgt)
