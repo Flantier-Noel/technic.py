@@ -36,7 +36,7 @@ class _Items():
         _default_tths = dft._gear_tths          # [int]   < list of nb_tooth of default gears
         _default_gears = dft._gear_dict         # {(int, int)} < dict of default gear given by index - keys/values given in doc
 
-        def __init__(self, center_pos3d:(float), rad=None, nb_tooth=None, dft_gr=None, orient:(float)):
+        def __init__(self, center_pos3d:(float), orient:(float), rad=None, nb_tooth=None, dft_gr=None):
             wgt = dft._wgtGear_fun(rad)
             _Items.__init__(self, center_pos3d, orient, wgt)
 
@@ -74,7 +74,7 @@ class _Items():
         rough       : bool                      < describes either the join could rotate or not 
         form_lst    : ('cross' || 'round') list < describes the formes of each part of the join '''
 
-        def __init__(self, center_pos3d:(float), length:int, rough:bool, form_lst:[str], orient:(float)):
+        def __init__(self, center_pos3d:(float), length:int, rough:bool, form_lst:list, orient:(float)):
             wgt = dft._wgtJoin_fun(length)
             _Items.__init__(self, center_pos3d, orient, wgt)
             
@@ -88,9 +88,9 @@ class _Items():
     class Beam(): ## gestion de la forme ??
         ''' beam child class :
         
-        center_pos3d, orient                        < super arg
+        center_pos3d, orient                < super arg
         length      : int                   < describes the length of the beam by its number of studs '''
 
-        def __init__(self,center_pos3d:(float), length:int, oreint):
+        def __init__(self,center_pos3d:(float), length:int, orient:(float)):
             wgt = dft._wgtBeam_fun(length)
             _Items.__init__(self, center_pos3d, orient, wgt)
