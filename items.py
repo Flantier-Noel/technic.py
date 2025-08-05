@@ -5,9 +5,9 @@ import _default_values as dft
 class _Hole():
     ''' basic type for connections between _Items 
     
-    centerEnt : (float)*3                       < represents the 3d position (x, y, z) of the center of the hole's entry
-    centerExt : (float)*3                       < represents the 3d position (x, y, z) of the center of the hole's exit 
-    from      : str : 'cross' || 'round'        < defined the form of the hole '''
+        centerEnt : (float)*3                       < represents the 3d position (x, y, z) of the center of the hole's entry
+        centerExt : (float)*3                       < represents the 3d position (x, y, z) of the center of the hole's exit 
+        from      : str : 'cross' || 'round'        < defined the form of the hole '''
 
     def __init__(self, centerEnt:(float), centerExt:(float), form:str):
         pass
@@ -69,10 +69,10 @@ class _Items():
     class Join():
         ''' join child class :
 
-        center_pos3d, orient                    < super arg
-        length      : int                       < describes the length of the join by its number of studs 
-        rough       : bool                      < describes either the join could rotate or not 
-        form_lst    : ('cross' || 'round') list < describes the formes of each part of the join '''
+            center_pos3d, orient                    < super arg
+            length      : int                       < describes the length of the join by its number of studs 
+            rough       : bool                      < describes either the join could rotate or not 
+            form_lst    : ('cross' || 'round') list < describes the formes of each part of the join '''
 
         def __init__(self, center_pos3d:(float), length:int, rough:bool, form_lst:list, orient:(float)):
             wgt = dft._wgtJoin_fun(length)
@@ -88,8 +88,8 @@ class _Items():
     class Beam(): ## gestion de la forme ??
         ''' beam child class :
         
-        center_pos3d, orient                < super arg
-        length      : int                   < describes the length of the beam by its number of studs '''
+            center_pos3d, orient                < super arg
+            length      : int                   < describes the length of the beam by its number of studs '''
 
         def __init__(self,center_pos3d:(float), length:int, orient:(float)):
             wgt = dft._wgtBeam_fun(length)
