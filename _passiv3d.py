@@ -23,9 +23,9 @@ def projection(X:(float), th:float, ph:float):
 class Plane():
     ''' class of portions of plane defined by their corners
      
-        corners_3D : [(float)*3]    < represents the 3D postions (x, y, z) of the corners defining the portions in the 3D space
+        corners_3D    : [(float)*3]                    < represents the 3D postions (x, y, z) of the corners defining the portions in the 3D space 
         
-        corners_2D : [(float)*2]    < represents the 2D positions (x, y)   of the corners defining the portions in the 2D space (projection cf. wiki) '''
+        _support_plan : [(float)*3]                    < represents a 3 points defining the plane in which the section is contained'''
     
     def __init__(self, corners_3D:list):
         self.corners_3D = []
@@ -39,8 +39,6 @@ class Plane():
         del _dic_double
         ##
 
-        self.corners_2D = [projection(pos_3D) for pos_3D in corners_3D]
-
         assert len(corners_3D) > 2, "Plane : must be defined by at least 3 points"
 
         ## check if the plane portion is well defined ie contained in a plane
@@ -48,20 +46,43 @@ class Plane():
         p1x, p1y, p1z = corners_3D[1]
         p2x, p2y, p2z = corners_3D[2]
 
-        u1x, u1y, u1z = p1x-p0x, p1y-p0y, p1y-p0y
-        u2x, u2y, u2z = p2x-p0x, p2y-p0y, p2y-p0y
+        u1x, u1y, u1z = p1x-p0x, p1y-p0y, p1z-p0z
+        u2x, u2y, u2z = p2x-p0x, p2y-p0y, p2z-p0z
+
+        self._support_plan = [(p0x, p0y, p0z), (p1x, p1y, p1z), (p2x, p2y, p2z)]
         
         for (pix, piy, piz) in corners_3D :
             uix, uiy, uiz = pix-p0x, piy-p0y, piy-p0y
             det = u1x*u2y*uiz + u2x*uiy*u1z + uix*u1y*u2z - uix*u2y*u1z- u2x*u1y*uiz - u1x*uiy*u2z
             assert det == 0, "Plane : unplanar definition"
         ##
-    
-    def __contains__(self, point:(float)):
-        ''' check if a 3D point is contained in the plain section 
-        
-        point : (float)*3       < represents the 3D postion (x, y, z) of the point to check'''
 
+    def to_3D(self, pos_2D:(float), th:float, ph:float):
+        ''' give the 3D position of a 2D point projected as described in the wiki 
+        
+            pos_2D  : (float)*2         < represents the 2D position (x, y) of the projected point
+            th      : float             < represents the theta angle of the projection
+            ph      : float             < represents the phi   angle of the projection '''
+        
+        x2, y2 = pos_2D
+
+        [(p0x, p0y, p0z), (p1x, p1y, p1z), (p2x, p2y, p2z)] = self._support_plan
+        u1x, u1y, u1z = p1x-p0x, p1y-p0y, p1z-p0z
+        u2x, u2y, u2z = p2x-p0x, p2y-p0y, p2z-p0z
+
+        vx, vy     = -sin(ph)       , cos(ph)
+        wx, wy, wz = sin(th)*cos(ph), sin(th)*sin(ph), cos(th)
+
+        syst_mat = [[u1x*vx + u1y*vy, u2x*vx + u2y*vy], [u1x*wx + u1y*wy + u1z*wz, u2x*wx + u2y*wy + u2z*wz]]
+        det = syst_mat[0][0]*syst_mat[1][1] - syst_mat[0][1]*syst_mat[1][0]
+        if det != 0 : raise ArithmeticError
+        inv_syst_mat = [[syst_mat[1][1]/det, -syst_mat[0][1]/det], [-syst_mat[1][0]/det, syst_mat[0][0]/det]]
+        val0 = [x2 - (p0x*vx + p0x*vy), y2 - (p0x*vx + p0y*vy)]
+
+        pln_var0, pln_var1 = inv_syst_mat[0][0]*val0[0] + inv_syst_mat[0][1]*val0[1], inv_syst_mat[1][0]*val0[0] + inv_syst_mat[1][1]*val0[1]
+        x3, y3, z3 = pln_var0*u1x + pln_var1*u2x + p0x, pln_var0*u1y + pln_var1*u2y + p0y, pln_var0*u1z + pln_var1*u2z + p0z
+
+        return x3, y3, z3
 
 class Scene():
     ''' class of scene constitued of planes in a 3D space 
@@ -72,4 +93,47 @@ class Scene():
         self.planes = planes.copy()
         
     def priority(self, th:float, ph:float):
-        prio = []
+        '''  '''
+
+        def are_2Dintersecting(pln1, pln2):
+            ''' check if two planes intersects in the projection. Returns an instnace of intersecting 2D point.
+            
+                pln1, pln2 : Plane  < represents the planes to check '''
+            
+
+            for i in range(len(pln1.corners_2D)):
+                corners_2D_pln1 = [projection(pos_3D, th , ph) for pos_3D in pln1.corners_3D]
+
+                p11x, p11y = corners_2D_pln1[i]
+                p12x, p12y = corners_2D_pln1[(i+1)%len(corners_2D_pln1)]
+                u1x, u1y = p12x-p11x, p12y-p11y
+
+                for j in range(len(pln2.corners_2D)):
+                    corners_2D_pln2 = [projection(pos_3D, th, ph) for pos_3D in pln2.corners_3D]
+
+                    p21x, p21y = corners_2D_pln2[j]
+                    p22x, p22y = corners_2D_pln2[(j+1)%len(corners_2D_pln2)]
+                    u2x, u2y = p22x-p21x, p22y-p21y
+
+                    det = u1x*u2y - u1y*u2x
+                    if det != 0 :
+                        val0x, val0y = u1x*p11x + u2x*p11y, u2y*p11x + u2y*p11y
+                        xint, yint = (u2y*val0x - u2x*val0y)/det, (-u1y*val0x + u1x*val0y)/det
+                        return True, (xint, yint)
+            
+            return False, None
+
+        prio_dic = {}
+        for pln in self.planes :
+            for pln0 in prio_dic.keys():
+                tst_inter, pt_inter = are_2Dintersecting(pln, pln0)
+                if tst_inter :
+                    ix_2D, iy_2D = pt_inter
+                    ix0, iy0, iz0 = pln0.to_3D(th, ph)
+                    ix, iy, iz    = pln.to_3D(th, ph)
+
+                    vx, vy, vz    = -1 #X vect viwer cam
+
+                    #dist inter-view
+                    #change prio funct of dist
+
