@@ -1,6 +1,5 @@
 #import items
 from math import cos, sin, sqrt
-#import heapq
 import warnings
 
 def projection(X:(float), th:float, ph:float):
@@ -24,10 +23,14 @@ class Plane():
     ''' class of portions of plane defined by their corners
      
         corners_3D    : [(float)*3]                    < represents the 3D postions (x, y, z) of the corners defining the portions in the 3D space 
+        color         : (hex)*3                        < represents the filling rgb color of the plane
+        outline       : (hex)*3                        < represents the outline rgg color of the plane - set as same as color by default
+
+        ***
         
         _support_plan : [(float)*3]                    < represents a 3 points defining the plane in which the section is contained'''
     
-    def __init__(self, corners_3D:list):
+    def __init__(self, corners_3D:list, color:(hex), outline=None):
         self.corners_3D = []
         ## supress eventual double in corners_3D
         _dic_double = {}
@@ -38,6 +41,26 @@ class Plane():
                 self.corners_3D.append(item)
         del _dic_double
         ##
+
+        self.fill = '#'
+        self.outline = '#'
+        for ind_col in range(3) :
+            fill_val = color[ind_col][2:]
+            if len(fill_val) < 2 : fill_val = '0'*(2-len(fill_val)) + fill_val
+            if len(fill_val) > 2 : 
+                fill_val = fill_val[-2:]
+                warnings.warn('Plane : color hex truncated')
+
+            self.fill += fill_val
+            if outline == None : self.outline += fill_val
+            else :
+                outl_val = outline[ind_col][2:]
+                if len(outl_val) < 2 : outl_val = '0'*(2-len(outl_val)) + outl_val
+                if len(outl_val) > 2 : 
+                    outl_val = outl_val[-2:]
+                    warnings.warn('Plane : outline hex truncated')
+
+                self.outline += outl_val  
 
         assert len(corners_3D) > 2, "Plane : must be defined by at least 3 points"
 
@@ -175,5 +198,3 @@ class Scene():
             return main_sort(L)
 
         return merge_sort(self.planes)
-    
-    
