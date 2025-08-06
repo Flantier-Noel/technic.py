@@ -1,6 +1,6 @@
-import items
-from math import cos, sin
-import heapq
+#import items
+from math import cos, sin, sqrt
+#import heapq
 import warnings
 
 def projection(X:(float), th:float, ph:float):
@@ -93,7 +93,7 @@ class Scene():
         self.planes = planes.copy()
         
     def priority(self, th:float, ph:float):
-        '''  '''
+        ''' cf wiki '''
 
         def are_2Dintersecting(pln1, pln2):
             ''' check if two planes intersects in the projection. Returns an instnace of intersecting 2D point.
@@ -123,17 +123,57 @@ class Scene():
             
             return False, None
 
-        prio_dic = {}
-        for pln in self.planes :
-            for pln0 in prio_dic.keys():
-                tst_inter, pt_inter = are_2Dintersecting(pln, pln0)
-                if tst_inter :
-                    ix_2D, iy_2D = pt_inter
-                    ix0, iy0, iz0 = pln0.to_3D(th, ph)
-                    ix, iy, iz    = pln.to_3D(th, ph)
+        def merge_sort(L:list):
+            ''' sort a list of Plane according to their distance from the viewer 
+            
+            L : [Plane]             < represents the list of planes to sort '''
 
-                    vx, vy, vz    = -1 #X vect viwer cam
+            def merge(L1:list, L2:list):
+                ''' merge function of a merge_sort '''
 
-                    #dist inter-view
-                    #change prio funct of dist
+                i1, i2 = 0,0
+                L_merge = []
+                while i1 < len(L1) or i2 < len(L2):
+                    if i1 >= len(L1) : 
+                        L_merge.append(L2[i2])
+                        i2 += 1
+                    elif i2 >= len(L2) :
+                        L_merge.append(L1[i1])
+                        i1 += 1
+                    else :
+                        pln1, pln2 = L1[i1], L2[i2]
 
+                        tst_inter, pt_inter = are_2Dintersecting(pln1, pln2)
+                        if tst_inter :
+                            ix1, iy1, iz1 = pln1.to_3D(pt_inter, th, ph)
+                            ix2, iy2, iz2    = pln2.to_3D(pt_inter, th, ph)
+
+                            vx, vy, vz    = cos(th)*cos(ph), cos(th)*sin(ph), -sin(th)
+
+                            d1 = sqrt((ix1-vx)**2 + (iy1-vy)**2 +(iz1-vz)**2)
+                            d2 = sqrt((ix2-vx)**2 + (iy2-vy)**2 +(iz2-vz)**2)
+
+                            if d1 >= d2 :
+                                L_merge.append(L1[i1])
+                                i1 +=  1
+                            else :
+                                L_merge.append(L2[i2])
+                                i2 += 1
+                        else : 
+                            L_merge.append(L1[i1])
+                            i1 += 1
+
+            def main_sort(L:(list)):
+                ''' main recursive sorting function '''
+
+                if len(L) <= 1 : return L
+                else :
+                    i_mid = len(L)//2
+                    L1, L2 = L[:i_mid], L[i_mid:]
+                    return main_sort(merge(L1, L2))
+                
+            return main_sort(L)
+
+        return merge_sort(self.planes)
+    
+    
