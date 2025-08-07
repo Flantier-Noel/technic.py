@@ -98,7 +98,7 @@ class Plane():
 
         syst_mat = [[u1x*vx + u1y*vy, u2x*vx + u2y*vy], [u1x*wx + u1y*wy + u1z*wz, u2x*wx + u2y*wy + u2z*wz]]
         det = syst_mat[0][0]*syst_mat[1][1] - syst_mat[0][1]*syst_mat[1][0]
-        if det != 0 : raise ArithmeticError
+        if det == 0 : raise ArithmeticError ## !! seems to be problematic
         inv_syst_mat = [[syst_mat[1][1]/det, -syst_mat[0][1]/det], [-syst_mat[1][0]/det, syst_mat[0][0]/det]]
         val0 = [x2 - (p0x*vx + p0x*vy), y2 - (p0x*vx + p0y*vy)]
 
@@ -185,6 +185,7 @@ class Scene():
                         else : 
                             L_merge.append(L1[i1])
                             i1 += 1
+                return L
 
             def main_sort(L:(list)):
                 ''' main recursive sorting function '''
@@ -193,7 +194,7 @@ class Scene():
                 else :
                     i_mid = len(L)//2
                     L1, L2 = L[:i_mid], L[i_mid:]
-                    return main_sort(merge(L1, L2))
+                    return merge(main_sort(L1), main_sort(L2))
                 
             return main_sort(L)
 
