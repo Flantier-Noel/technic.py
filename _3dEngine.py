@@ -75,7 +75,7 @@ class Plane():
         self._support_plan = [(p0x, p0y, p0z), (p1x, p1y, p1z), (p2x, p2y, p2z)]
         
         for (pix, piy, piz) in corners_3D :
-            uix, uiy, uiz = pix-p0x, piy-p0y, piy-p0y
+            uix, uiy, uiz = pix-p0x, piy-p0y, piz-p0z
             det = u1x*u2y*uiz + u2x*uiy*u1z + uix*u1y*u2z - uix*u2y*u1z- u2x*u1y*uiz - u1x*uiy*u2z
             assert det == 0, "Plane : unplanar definition"
         ##
@@ -124,14 +124,14 @@ class Scene():
                 pln1, pln2 : Plane  < represents the planes to check '''
             
 
-            for i in range(len(pln1.corners_2D)):
+            for i in range(len(pln1.corners_3D)):
                 corners_2D_pln1 = [projection(pos_3D, th , ph) for pos_3D in pln1.corners_3D]
 
                 p11x, p11y = corners_2D_pln1[i]
                 p12x, p12y = corners_2D_pln1[(i+1)%len(corners_2D_pln1)]
                 u1x, u1y = p12x-p11x, p12y-p11y
 
-                for j in range(len(pln2.corners_2D)):
+                for j in range(len(pln2.corners_3D)):
                     corners_2D_pln2 = [projection(pos_3D, th, ph) for pos_3D in pln2.corners_3D]
 
                     p21x, p21y = corners_2D_pln2[j]
