@@ -142,7 +142,9 @@ class Scene():
                     if det != 0 :
                         val0x, val0y = u1x*p11x + u2x*p11y, u2y*p11x + u2y*p11y
                         xint, yint = (u2y*val0x - u2x*val0y)/det, (-u1y*val0x + u1x*val0y)/det
-                        return True, (xint, yint)
+                        if min(p11x, p12x) <= xint <= max(p11x, p12x) and min(p11y, p12y) <= yint <= max(p11y, p12y) :
+                            if min(p21x, p22x) <= xint <= max(p21x, p22x) and min(p21y, p22y) <= yint <= max(p21y, p22y) :
+                                return True, (xint, yint)
             
             return False, None
 

@@ -10,7 +10,7 @@ def visualisation(scn):
 
     def rotate(event):
         global th, ph, cnv_ids
-        cnv.forget('all')
+        cnv.delete('all')
 
         if event.char == 'z' : th -= 0.1
         if event.char == 's' : th += 0.1
